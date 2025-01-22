@@ -1,0 +1,24 @@
+services:
+  loanify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loanify
+    restart: always
+    volumes:
+      - .:/app
+    networks:
+      - nginx_proxy-network
+
+  loanify-redis:
+    image: redis:latest
+    restart: always
+    container_name: loanify-redis
+    networks:
+      - nginx_proxy-network
+    ports: 
+      - "6379:6379" 
+
+networks:
+  nginx_proxy-network:
+    external: true
