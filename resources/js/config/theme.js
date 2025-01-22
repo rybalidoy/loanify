@@ -61,13 +61,6 @@ const theme = extendTheme({
       fontFamily: 'Inter, Arial, sans-serif',
     },
   },
-  vars: {
-    opacity: {
-      disabled: 0.5, // Opacity for disabled state
-      overlay: 0.7,   // Opacity for overlays
-      modal: 0.8,     // Opacity for modals
-    },
-  },
 });
 
 export default theme;
