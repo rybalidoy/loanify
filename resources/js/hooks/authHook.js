@@ -5,8 +5,9 @@ export const useFetchAuthenticatedUser = () => {
   return useQuery({
     queryKey: ["auth-user-details"],
     queryFn: fetchAuthenticatedUser,
-    staleTime: 2 * 60 * 60 * 1000,
-    cacheTime: 5 * 60 * 60 * 1000,
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours
+    cacheTime: 5 * 60 * 60 * 1000, // 5 hours
+    retry: 1, // Retry only once
   });
 };
 
