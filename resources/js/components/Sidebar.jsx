@@ -47,29 +47,31 @@ const Sidebar = () => {
           </Typography>
         </Box>
         <List>
-          {AppRoutes.filter(route => !route.exclude).map((route) => (
-            <ListItem key={route.path} disablePadding>
-              <ListItemButton
-                component={Link}
-                to={route.path}
-                sx={{
-                  color: theme.palette.text.primary,
-                  backgroundColor: location.pathname === `/${route.path}` ? theme.palette.action.selected : 'transparent',
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                  },
-                }}
-              >
-                {route?.icon && (
-                  <Box sx={{ marginRight: 2 }}>
-                    {route.icon}
-                  </Box>
-                )}
-                <ListItemText primary={route.label} />
-                {route?.children && <ChevronRightIcon width={24} />}
-              </ListItemButton>
-            </ListItem>
-          ))}
+        {AppRoutes.filter(route => !route.exclude).map((route) => (
+          <ListItem key={route.path} disablePadding>
+            <ListItemButton
+              component={Link}
+              to={route.path}
+              sx={{
+                color: theme.palette.text.primary,
+                backgroundColor: location.pathname === `/${route.path}` ? theme.palette.action.selected : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+                display: 'flex', // Add this
+                alignItems: 'center', // Add this
+              }}
+            >
+              {route?.icon && (
+                <Box sx={{ marginRight: 2, display: 'flex', alignItems: 'center' }}>
+                  {route.icon}
+                </Box>
+              )}
+              <ListItemText primary={route.label} sx={{fontSize: '0.2rem'}}/>
+              {route?.children && <ChevronRightIcon width={24} />}
+            </ListItemButton>
+          </ListItem>
+        ))}
         </List>
       </Box>
     </Box>

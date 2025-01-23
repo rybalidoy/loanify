@@ -1,17 +1,39 @@
 import { useEffect, useState, useCallback } from "react";
-import { fetchCompanies, fetchCompany, updateCompanyStatus } from '../../api/company';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid2, IconButton, TextField, Typography, Snackbar } from "@mui/material";
-import { debounce } from "lodash";
-import { CheckCircleIcon, PencilIcon, PlusIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import {
+  fetchCompanies,
+  fetchCompany,
+  updateCompanyStatus,
+} from "../../../api/company";
+import {
+  Box,
+  Typography,
+  Input,
+  IconButton,
+  Button,
+  Modal,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Snackbar,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { debounce } from "lodash";
+import {
+  PencilIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 import CompanyForm from "./CompanyForm";
-import { companyStatuses, companyStatusReasons } from "../../types/company";
+import { companyStatuses } from "../../../types/company";
+import { companyStatusReasons } from "../../../types/company";
 
 const Companies = () => {
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25,
-    total: 0,
   });
   const [companies, setCompanies] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
@@ -20,14 +42,12 @@ const Companies = () => {
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
   const columns = [
     {
-      field: "company_code",
-      headerName: "Code",
+      field: "company_id",
+      headerName: "Company ID",
       flex: 1,
+      // valueFormatter: (params) => params.value.toString().padStart(5, '0')
     },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "capital", headerName: "Capital", flex: 1 },
@@ -56,6 +76,8 @@ const Companies = () => {
       ),
     },
   ];
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const debounceSearch = useCallback(
     debounce((value) => {
@@ -69,7 +91,11 @@ const Companies = () => {
     debounceSearch(event.target.value);
   };
 
-  const handleFetchCompanies = async ({ page, pageSize }, searchValue, sortModel) => {
+  const handleFetchCompanies = async (
+    { page, pageSize },
+    searchValue,
+    sortModel
+  ) => {
     const { field, sort } = sortModel[0];
     const params = {
       page: page + 1,
@@ -98,9 +124,16 @@ const Companies = () => {
   };
 
   const handleEdit = async (row) => {
-    setIsEdit(true);
-    setSelectedCompany(row);
-    setOpen(true);
+    try {
+      const { data, status } = await fetchCompany(row.id);
+      if (status === 200) {
+        setIsEdit(true);
+        setSelectedCompany(data);
+        setOpen(true);
+      }
+    } catch (error) {
+      console.error("Failed to fetch company data", error);
+    }
   };
 
   const handleToggle = async (row) => {
@@ -139,29 +172,31 @@ const Companies = () => {
   }, [paginationModel, sortModel]);
 
   return (
-    <Grid2 container display="flex" justifyContent="space-between" gap={2} height={'calc(100vh - 165px)'}>
-      <Typography variant="h5">Companies</Typography>
-      <Box display="flex" alignItems="center" width={'40%'}>
-        <Box sx={{ width: '100%' }}>
-          <TextField
-            fullWidth
-            variant={'outlined'}
+    <Box height={"88vh"} display={"flex"} flexDirection={"column"}>
+      <Box
+        paddingY={1}
+        display={"flex"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
+        <Typography variant="h4">Companies</Typography>
+        <Box display={"flex"} alignItems={"center"}>
+          <Input
             placeholder="Search"
             value={search}
-            size="small"
             onChange={handleSearchChange}
           />
+          <Button
+            endIcon={<PlusIcon width={20} />}
+            onClick={handleCreate}
+            color="success"
+            sx={{ marginLeft: 2 }}
+          >
+            Create
+          </Button>
         </Box>
-        <Button
-          variant="contained"
-          endIcon={<PlusIcon width={20} />}
-          onClick={handleCreate}
-          sx={{ marginLeft: 2 }}
-        >
-          Create
-        </Button>
       </Box>
-      <Box display="flex" sx={{ height: '100%', width: '100%' }}>
+      <Box display={"flex"} flexGrow={1}>
         <DataGrid
           columns={columns}
           rows={companies}
@@ -174,35 +209,36 @@ const Companies = () => {
           onSortModelChange={handleSortModelChange}
           sortModel={sortModel}
           disableRowSelectionOnClick
-          sx={{ flexGrow: 1 }}
         />
       </Box>
-    
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {selectedCompany ? "Edit Company" : "Create Company"}
-        </DialogTitle>
-        <DialogContent>
-          <Divider />
-          <CompanyForm
-            isEdit={isEdit}
-            company={selectedCompany}
-            onClose={handleClose}
-            onSuccess={() => {
-              handleFetchCompanies(paginationModel, search, sortModel);
-              handleClose();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-
+      <Modal open={open} onClose={handleClose}>
+        <Dialog>
+          <DialogTitle>
+            {selectedCompany ? "Edit Company" : "Create Company"}
+          </DialogTitle>
+          <DialogContent>
+            <Divider />
+            <CompanyForm
+              isEdit={isEdit}
+              company={selectedCompany}
+              onClose={handleClose}
+              onSuccess={() =>
+                handleFetchCompanies(paginationModel, search, sortModel)
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      </Modal>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-    </Grid2>
+    </Box>
   );
 };
 

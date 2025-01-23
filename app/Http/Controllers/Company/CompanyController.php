@@ -23,16 +23,16 @@ class CompanyController
           $query->where('name', 'active');
         });
 
-        if ($search) {
-          $query->where('name', 'like', "%{$search}%")
-          ->orWhere('company_id', 'like', "%{$search}%");
-        }
-              
+      if ($search) {
+        $query->where('name', 'like', "%{$search}%")
+          ->orWhere('company_code', 'like', "%{$search}%");
+      }
+
       $companies = $query->orderBy($sortField, $sortDirection)
         ->paginate($perPage, ['*'], 'page', $page);
 
       $companies->getCollection()->transform(function ($company) {
-        $company->current_status = $company->status()->name;
+        $company->current_status = $company->status; // Access the current status
         return $company;
       });
 
@@ -59,7 +59,7 @@ class CompanyController
       $company = new Company();
       $company->capital = $validatedData['capital'] ?? 0;
       $company->name = $validatedData['name'];
-      $company->company_id = $validatedData['tag'];
+      $company->company_code = $validatedData['company_code'];
       $company->save();
       $company->setStatus('active', 'created');
       return response()->json(['message' => 'Company created successfully', 'company' => $company], 201);
@@ -117,4 +117,11 @@ class CompanyController
       return response()->json(['message' => 'Internal server error'], 500);
     }
   }
+
+  // public function generateCompanyCode(Request $request)
+  // {
+  //   try {
+  //     $companyService = new CompanyService();
+  //   }
+  // }
 }

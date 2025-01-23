@@ -11,6 +11,7 @@ import { capitalizeEachWord } from "../utils/stringHelpers";
 import { useState, useEffect, useRef } from "react";
 import { logout } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 
 const TopNavbar = ({ user }) => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const TopNavbar = ({ user }) => {
       justifyContent="flex-end"
       alignItems="center"
       gap={2}
-      bgcolor={theme.palette.background.paper}
+      bgcolor={theme.palette.background.toolbar}
     >
       <Box
         display="flex"
@@ -106,19 +107,20 @@ const TopNavbar = ({ user }) => {
           sx={{ mt: 1 }}
           ref={menuRef}
         >
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={handleMenuClose} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <UserCircleIcon width={24} />
             My Profile
           </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={handleMenuClose} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Cog6ToothIcon width={24} />
             Account Settings
           </MenuItem>
-          <MenuItem onClick={handleLogout}>
+          <MenuItem onClick={handleLogout} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <ArrowRightEndOnRectangleIcon width={24} />
             Logout
           </MenuItem>
         </Menu>
+        <ThemeSwitcher />
       </Box>
     </Box>
   );

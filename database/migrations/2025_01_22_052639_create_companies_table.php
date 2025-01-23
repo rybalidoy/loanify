@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('company_id', 11)->unique();
+            $table->string('company_code', 11);
             $table->string('name');
             $table->decimal('capital', 19, 4);
             $table->timestamps();

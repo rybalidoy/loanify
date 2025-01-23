@@ -23,7 +23,7 @@ class StoreCompanyRequest extends FormRequest
   {
     return [
       'name' => 'required|string|min:3',
-      'tag' => 'required|string|min:3|max:5',
+      'company_code' => 'required|string|min:11|max:11',
       'capital' => 'required|numeric|min:0',
     ];
   }

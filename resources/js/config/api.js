@@ -3,9 +3,6 @@ import Cookies from 'js-cookie';
 
 // Create Axios instance
 const api = axios.create({
-  headers: {
-    'X-Requested-With': 'XMLHttpRequest',
-  },
   withCredentials: true,
 });
 
