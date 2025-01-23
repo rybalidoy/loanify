@@ -11,7 +11,6 @@ const Companies = () => {
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25,
-    total: 0,
   });
   const [companies, setCompanies] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
