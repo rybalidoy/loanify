@@ -12,6 +12,23 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+
+  public function index(Request $request)
+  {
+    try {
+      $page = $request->input('page', 1);
+      $perPage = $request->input('pageSize', 25);
+      $sortField = $request->input('sortField', 'name');
+      $sortDirection = $request->input('sortDirection', 'asc');
+      $search = $request->input('search', null);
+
+      $query = User::query()->currentStatus('active');
+
+    } catch(\Throwable $throwable) {
+      return response()->json(['message' => $throwable->getMessage(), 500]);
+    }
+  }
+
   public function store(CreateUserRequest $request, User $userModel) 
   {
     try {
@@ -54,4 +71,6 @@ class UserController extends Controller
       return response()->json(['message' => 'An error occurred: ' . $e->getMessage()], 500);
     }
   }
+
+  
 }

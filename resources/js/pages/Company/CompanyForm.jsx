@@ -2,7 +2,7 @@ import { Box, TextField, Typography, Button, Grid } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import { useState } from "react";
 import { z } from "zod";
-import { create } from "../../api/company";
+import { create, update } from "../../api/company";
 
 const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -54,19 +54,27 @@ const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
   
     if (!result.success) {
       const formattedErrors = result.error.format();
-      setErrors(formattedErrors);
+      const flattenedErrors = {};
+  
+      // Flatten the errors
+      for (const key in formattedErrors) {
+        if (formattedErrors[key]?._errors) {
+          flattenedErrors[key] = formattedErrors[key]._errors.join(", ");
+        }
+      }
+  
+      setErrors(flattenedErrors); // Set the flattened errors
       return;
     }
   
     try {
       const validatedData = result.data;
-
+  
       if (isEdit) {
-        
+        console.log(validatedData);
+        await update(company?.id, validatedData); 
       } else {
-        await create({
-          ...validatedData,
-        });
+        await create(validatedData);
       }
       onClose();
       onSuccess();

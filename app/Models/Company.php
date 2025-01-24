@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasCustomStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\ModelStatus\HasStatuses;
 
 class Company extends Model
 {
-  use HasFactory, HasStatuses;
+  use HasFactory, HasStatuses, HasCustomStatuses;
 
   protected $fillable = [
     'company_code',

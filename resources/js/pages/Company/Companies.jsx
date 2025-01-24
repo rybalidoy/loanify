@@ -29,6 +29,7 @@ const Companies = () => {
       flex: 1,
     },
     { field: "name", headerName: "Name", flex: 1 },
+    { field: "current_status", headerName: "Status", flex: 1},
     { field: "capital", headerName: "Capital", flex: 1 },
     {
       field: "actions",

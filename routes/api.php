@@ -20,10 +20,10 @@ Route::prefix('companies')->controller(CompanyController::class)->group(function
     Route::get('/max-id', 'getMaxCompanyId');
     Route::get('/', 'index');
     Route::post('/', 'store');
-    Route::get('{id}', 'show');
-    Route::post('{id}', 'update');
-    Route::post('{id}/status', 'changeStatus');
-    Route::delete('{id}', 'destroy');
+    Route::get('{company}', 'show');
+    Route::post('{company}', 'update');
+    Route::post('{company}/status', 'changeStatus');
+    Route::delete('{company}', 'destroy');
   });
 });
 
