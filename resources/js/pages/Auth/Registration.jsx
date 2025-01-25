@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Input, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, TextField, Button, Box } from "@mui/material";
 import { z } from "zod";
 import { Link } from "react-router-dom";
 import { register } from "../../api/auth";
@@ -13,6 +13,7 @@ const registrationSchema = z
     email: z.string().email("Invalid email format"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     password_confirmation: z.string(),
+    company_code: z.string().nonempty("Company Code is required"), // Add company_code validation
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Passwords must match",
@@ -21,13 +22,14 @@ const registrationSchema = z
 
 const Registration = () => {
   const [formData, setFormData] = useState({
-    usename: "",
+    username: "",
     first_name: "",
     last_name: "",
     middle_name: "",
     email: "",
     password: "",
     password_confirmation: "",
+    company_code: "", // Add company_code to formData
   });
 
   const [errors, setErrors] = useState({
@@ -38,6 +40,7 @@ const Registration = () => {
     email: "",
     password: "",
     password_confirmation: "",
+    company_code: "", // Add company_code to errors
     backend: "",
   });
 
@@ -57,6 +60,7 @@ const Registration = () => {
       email: "",
       password: "",
       password_confirmation: "",
+      company_code: "", // Reset company_code error
       backend: "",
     });
 
@@ -73,6 +77,7 @@ const Registration = () => {
         email: fieldErrors.email?.[0] || "",
         password: fieldErrors.password?.[0] || "",
         password_confirmation: fieldErrors.password_confirmation?.[0] || "",
+        company_code: fieldErrors.company_code?.[0] || "", // Set company_code error
       }));
       return;
     }
@@ -80,25 +85,20 @@ const Registration = () => {
     handleRegistration(formData);
   };
 
-  const fakeBackendRegister = async (data) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-        });
-      }, 1000);
-    });
-  };
-
   const handleRegistration = async (data) => {
     const response = await register(data);
 
-    console.log(response);
     if (response?.ok) {
-      
+      // Handle successful registration
+      console.log("Registration successful");
+    } else {
+      // Handle backend errors
+      setErrors((prev) => ({
+        ...prev,
+        backend: response?.data?.message || "Registration failed",
+      }));
     }
-    setFormData([]);
-  }
+  };
 
   return (
     <Box
@@ -145,7 +145,7 @@ const Registration = () => {
           }}
         >
           <Typography
-            level="h4"
+            variant="h4"
             component="div"
             sx={{ mb: 2, textAlign: "center" }}
           >
@@ -162,94 +162,87 @@ const Registration = () => {
               marginX: "auto",
             }}
           >
-            <Input
+            <TextField
               name="username"
-              placeholder="Username"
+              label="Username"
               value={formData.username}
               onChange={handleInputChange}
               error={!!errors.username}
+              helperText={errors.username}
+              fullWidth
             />
-            {errors.username && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.username}
-              </Typography>
-            )}
-            <Input
+            <TextField
               name="first_name"
-              placeholder="First Name"
+              label="First Name"
               value={formData.first_name}
               onChange={handleInputChange}
               error={!!errors.first_name}
+              helperText={errors.first_name}
+              fullWidth
             />
-            {errors.first_name && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.first_name}
-              </Typography>
-            )}
-            <Input
+            <TextField
               name="last_name"
-              placeholder="Last Name"
+              label="Last Name"
               value={formData.last_name}
               onChange={handleInputChange}
               error={!!errors.last_name}
+              helperText={errors.last_name}
+              fullWidth
             />
-            {errors.last_name && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.last_name}
-              </Typography>
-            )}
-            <Input
+            <TextField
               name="middle_name"
-              placeholder="Middle Name (Optional)"
+              label="Middle Name (Optional)"
               value={formData.middle_name}
               onChange={handleInputChange}
               error={!!errors.middle_name}
+              helperText={errors.middle_name}
+              fullWidth
             />
-            <Input
+            <TextField
               name="email"
               type="email"
-              placeholder="Email Address"
+              label="Email Address"
               value={formData.email}
               onChange={handleInputChange}
               error={!!errors.email}
+              helperText={errors.email}
+              fullWidth
             />
-            {errors.email && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.email}
-              </Typography>
-            )}
-            <Input
+            <TextField
               name="password"
               type="password"
-              placeholder="Password"
+              label="Password"
               value={formData.password}
               onChange={handleInputChange}
               error={!!errors.password}
+              helperText={errors.password}
+              fullWidth
             />
-            {errors.password && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.password}
-              </Typography>
-            )}
-            <Input
+            <TextField
               name="password_confirmation"
               type="password"
-              placeholder="Repeat Password"
+              label="Repeat Password"
               value={formData.password_confirmation}
               onChange={handleInputChange}
               error={!!errors.password_confirmation}
+              helperText={errors.password_confirmation}
+              fullWidth
             />
-            {errors.password_confirmation && (
-              <Typography level="body2" color="error" sx={{ mt: -1 }}>
-                {errors.password_confirmation}
-              </Typography>
-            )}
-            <Button type="submit" fullWidth color="primary">
+            <TextField
+              name="company_code"
+              label="Company Code"
+              value={formData.company_code}
+              onChange={handleInputChange}
+              error={!!errors.company_code}
+              helperText={errors.company_code}
+              fullWidth
+            />
+            <Button type="submit" fullWidth variant="contained" color="primary">
               Register
             </Button>
             {errors.backend && (
               <Typography
-                level="body2"
+                variant="body2"
                 color="error"
                 sx={{ mt: 2, textAlign: "center" }}
               >
@@ -258,7 +251,7 @@ const Registration = () => {
             )}
           </Box>
           <Typography
-            level="body2"
+            variant="body2"
             sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}
           >
             Already have an account?{" "}

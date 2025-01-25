@@ -27,6 +27,13 @@ Route::prefix('companies')->controller(CompanyController::class)->group(function
   });
 });
 
+Route::prefix('users')->controller(UserController::class)->group(function () {
+  Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/', 'index');
+    Route::post('/', 'store');
+  });
+});
+
 Route::controller(UserController::class)->group(function () {
   Route::post('register', 'store')->name('register');
 });

@@ -8,11 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\ModelStatus\HasStatuses;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\HasCustomStatuses;
 
 class User extends Authenticatable
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
-  use HasFactory, Notifiable, HasApiTokens, HasRoles, HasStatuses;
+  use HasFactory, Notifiable, HasApiTokens, HasRoles, HasStatuses, HasCustomStatuses;
 
   /**
    * The attributes that are mass assignable.
@@ -38,11 +39,10 @@ class User extends Authenticatable
     'remember_token',
   ];
 
-  /**
-   * Get the attributes that should be cast.
-   *
-   * @return array<string, string>
-   */
+  protected $appends = [
+    'name'
+  ];
+
   protected function casts(): array
   {
     return [
@@ -50,5 +50,14 @@ class User extends Authenticatable
       'password' => 'hashed',
     ];
   }
-  
+
+  public function company()
+  {
+    return $this->belongsTo(Company::class);
+  }
+
+  public function getNameAttribute()
+  {
+    return trim($this->first_name . ' ' . $this->last_name);
+  }
 }

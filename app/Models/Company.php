@@ -17,4 +17,8 @@ class Company extends Model
     'capital',
   ];
 
+  public function employees()
+  {
+    return $this->hasMany(User::class);
+  }
 }

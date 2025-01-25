@@ -1,36 +1,41 @@
 import { useEffect, useState, useCallback } from "react";
-import { fetchCompanies, fetchCompany, updateCompanyStatus } from '../../api/company';
+import { fetchUsers, fetchUser, updateUserStatus } from '../../api/user'; // Assume these API functions exist
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid2, IconButton, TextField, Typography, Snackbar } from "@mui/material";
 import { debounce } from "lodash";
 import { CheckCircleIcon, PencilIcon, PlusIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { DataGrid } from "@mui/x-data-grid";
-import CompanyForm from "./CompanyForm";
-import { companyStatuses, companyStatusReasons } from "../../types/company";
+import UserForm from "./UserForm"; // Assume this component exists
+import { userStatuses, userStatusReasons } from "../../types/user"; // Assume these constants exist
 
-const Companies = () => {
+const Users = () => {
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25,
   });
-  const [companies, setCompanies] = useState([]);
+  const [users, setUsers] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
   const [search, setSearch] = useState("");
-  const [sortModel, setSortModel] = useState({ field: "name", sort: "asc" }); // Single sorting rule
+  const [sortModel, setSortModel] = useState([{ field: "name", sort: "asc" }]);
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const columns = [
     {
-      field: "company_code",
-      headerName: "Code",
+      field: "user_id",
+      headerName: "ID",
       flex: 1,
     },
     { field: "name", headerName: "Name", flex: 1 },
-    { field: "current_status", headerName: "Status", flex: 1},
-    { field: "capital", headerName: "Capital", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "current_role", headerName: "Role", flex: 1 },
+    {
+      field: "current_status",
+      headerName: "Status",
+      flex: 1,
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -46,7 +51,7 @@ const Companies = () => {
             <PencilIcon width={24} />
           </IconButton>
           <IconButton onClick={() => handleToggle(params.row)}>
-            {params.row.current_status === companyStatuses.inactive ? (
+            {params.row.current_status === userStatuses.inactive ? (
               <CheckCircleIcon width={24} color="green" />
             ) : (
               <XCircleIcon width={24} color="red" />
@@ -59,7 +64,7 @@ const Companies = () => {
 
   const debounceSearch = useCallback(
     debounce((value) => {
-      handleFetchCompanies(paginationModel, value, sortModel);
+      handleFetchUsers(paginationModel, value, sortModel);
     }, 1000),
     [paginationModel, sortModel]
   );
@@ -69,59 +74,57 @@ const Companies = () => {
     debounceSearch(event.target.value);
   };
 
-  const handleFetchCompanies = async ({ page, pageSize }, searchValue, sortModel) => {
+  const handleFetchUsers = async ({ page, pageSize }, searchValue, sortModel) => {
+    const { field, sort } = sortModel[0];
     const params = {
       page: page + 1,
       pageSize,
       search: searchValue,
-      sortField: sortModel.field, // Single sorting field
-      sortDirection: sortModel.sort, // Single sorting direction
+      sortField: field,
+      sortDirection: sort,
     };
 
-    const { data, status } = await fetchCompanies(params);
+    const { data, status } = await fetchUsers(params);
 
     if (status === 200) {
-      setCompanies(data?.data);
+      setUsers(data?.data);
       setTotalRows(data?.total);
     } else {
-      setCompanies([]);
+      setUsers([]);
     }
   };
 
   const handlePaginationModelChange = (newPaginationModel) => {
     setPaginationModel(newPaginationModel);
-    handleFetchCompanies(newPaginationModel, search, sortModel); // Fetch companies on pagination change
+    handleFetchUsers(newPaginationModel, search, sortModel); // Fetch users on pagination change
   };
 
   const handleSortModelChange = (newSortModel) => {
-    // newSortModel is an array, but we only use the first rule
-    const sortRule = newSortModel[0] || { field: "name", sort: "asc" };
-    setSortModel(sortRule); // Update the sortModel state
-    handleFetchCompanies(paginationModel, search, sortRule); // Fetch data with new sorting
+    setSortModel(newSortModel);
+    handleFetchUsers(paginationModel, search, newSortModel); // Fetch users on sort change
   };
 
   const handleEdit = async (row) => {
     setIsEdit(true);
-    setSelectedCompany(row);
+    setSelectedUser(row);
     setOpen(true);
   };
 
   const handleToggle = async (row) => {
     const status =
-      row.current_status === companyStatuses.active
-        ? companyStatuses.inactive
-        : companyStatuses.active; // Invert the status
+      row.current_status === userStatuses.active
+        ? userStatuses.inactive
+        : userStatuses.active; // Invert the status
     const statusReason =
-      status === companyStatuses.active
-        ? companyStatusReasons.enabled
-        : companyStatusReasons.disabled;
-    const response = await updateCompanyStatus(row.id, {
+      status === userStatuses.active
+        ? userStatusReasons.enabled
+        : userStatusReasons.disabled;
+    const response = await updateUserStatus(row.id, {
       status: status,
       reason: statusReason,
     });
     if (response.status === 200) {
-      console.log(response?.data.message);
-      handleFetchCompanies(paginationModel, search, sortModel);
+      handleFetchUsers(paginationModel, search, sortModel);
       setSnackbarMessage(response?.data.message);
       setSnackbarOpen(true);
     }
@@ -134,16 +137,16 @@ const Companies = () => {
   const handleClose = () => {
     setOpen(false);
     setIsEdit(false);
-    setSelectedCompany(null);
+    setSelectedUser(null);
   };
 
   useEffect(() => {
-    handleFetchCompanies(paginationModel, search, sortModel);
+    handleFetchUsers(paginationModel, search, sortModel);
   }, [paginationModel, sortModel]);
 
   return (
     <Grid2 container display="flex" justifyContent="space-between" gap={2} height={'calc(100vh - 165px)'}>
-      <Typography variant="h5">Companies</Typography>
+      <Typography variant="h5">Users</Typography>
       <Box display="flex" alignItems="center" width={'40%'}>
         <Box sx={{ width: '100%' }}>
           <TextField
@@ -167,17 +170,15 @@ const Companies = () => {
       <Box display="flex" sx={{ height: '100%', width: '100%' }}>
         <DataGrid
           columns={columns}
-          rows={companies}
+          rows={users}
           pagination
           paginationMode="server"
           rowCount={totalRows}
           paginationModel={paginationModel}
           onPaginationModelChange={handlePaginationModelChange}
           pageSizeOptions={[25, 50, 100]}
-          sortingMode="server"
-          sortModel={[sortModel]} // Pass the single sorting rule as an array
           onSortModelChange={handleSortModelChange}
-          sortingOrder={['asc', 'desc', null]}
+          sortModel={sortModel}
           disableRowSelectionOnClick
           sx={{ flexGrow: 1 }}
         />
@@ -185,16 +186,16 @@ const Companies = () => {
     
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {selectedCompany ? "Edit Company" : "Create Company"}
+          {selectedUser ? "Edit User" : "Create User"}
         </DialogTitle>
         <DialogContent>
           <Divider />
-          <CompanyForm
+          <UserForm
             isEdit={isEdit}
-            company={selectedCompany}
+            user={selectedUser}
             onClose={handleClose}
             onSuccess={() => {
-              handleFetchCompanies(paginationModel, search, sortModel);
+              handleFetchUsers(paginationModel, search, sortModel);
               handleClose();
             }}
           />
@@ -211,4 +212,4 @@ const Companies = () => {
   );
 };
 
-export default Companies;
+export default Users;

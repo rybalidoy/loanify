@@ -12,7 +12,6 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-
   public function index(Request $request)
   {
     try {
@@ -21,14 +20,31 @@ class UserController extends Controller
       $sortField = $request->input('sortField', 'name');
       $sortDirection = $request->input('sortDirection', 'asc');
       $search = $request->input('search', null);
+      
+      $query = User::query()
+        ->bindLatestStatus()
+        ->with(['roles' => function ($query) {
+          $query->select('name')->limit(1); // Get only the first role
+        }]);
+        
+      if ($search) {
+        $query->where(function ($q) use ($search) {
+          $q->where('first_name', 'like', '%' . $search . '%')
+            ->orWhere('last_name', 'like', '%' . $search . '%')
+            ->orWhere('username', 'like', '%' . $search . '%')
+            ->orWhere('email', 'like', '%' . $search . '%');
+        });
+      }
 
-      $query = User::query()->currentStatus('active');
+      // Sort and paginate the results
+      $users = $query->orderBy($sortField, $sortDirection)
+        ->paginate($perPage, ['*'], 'page', $page);
 
-    } catch(\Throwable $throwable) {
-      return response()->json(['message' => $throwable->getMessage(), 500]);
+      return response()->json($users);
+    } catch (\Throwable $throwable) {
+      return response()->json(['message' => $throwable->getMessage()], 500);
     }
   }
-
   public function store(CreateUserRequest $request, User $userModel) 
   {
     try {
@@ -39,7 +55,10 @@ class UserController extends Controller
       $validated['last_name'] = ucfirst($validated['last_name']);
       $validated['middle_name'] = ucfirst($validated['middle_name']);
       $validated['password'] = Hash::make($validated['password']);
-      return response()->json($userModel->create($validated));
+      $user = $userModel->create($validated);
+      $user->setStatus('active', 'created');
+      $user->assignRole($validated['role']);
+      return response()->json(['message' => 'User created successfully', 'user' => $user]);
     } catch (\Exception $e) {
       return response()->json(['message' => $e->getMessage()], 500);
     }

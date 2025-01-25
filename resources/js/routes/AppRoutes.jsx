@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Companies = lazy(() => import('../pages/Company/Companies'));
-const Users = lazy(() => import('../pages/Users'));
+const Users = lazy(() => import('../pages/User/Users'));
 const Loans = lazy(() => import('../pages/Loans'));
 // const Settings = lazy(() => import('../pages/Settings'));
 

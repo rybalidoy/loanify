@@ -7,7 +7,7 @@ import { create, update } from "../../api/company";
 const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: company?.name || "",
-    company_code: company?.company_code || "",
+    // company_code: company?.company_code || "",
     capital: company?.capital || 0,
   });
 
@@ -15,7 +15,7 @@ const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
 
   const schema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters long"),
-    company_code: z.string().min(1, "Company code is required"),
+    // company_code: z.strings().min(1, "Company code is required"),
     capital: z
       .number()
       .min(0, "Capital cannot be negative")
@@ -109,7 +109,7 @@ const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
         </Grid>
       </Grid>
 
-      {/* Company Code Field */}
+      {/* Company Code Field
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} sm={3}>
           <Typography>Company Code</Typography>
@@ -123,7 +123,7 @@ const CompanyForm = ({ isEdit = false, company, onClose, onSuccess }) => {
             helperText={errors.company_code}
           />
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* Capital Field */}
       <Grid container spacing={2} alignItems="center">

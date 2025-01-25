@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('capital', 19, 4);
             $table->timestamps();
         });
-    }
+    }P
 
     /**
      * Reverse the migrations.

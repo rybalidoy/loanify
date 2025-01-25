@@ -15,19 +15,23 @@ class CompanyController
     try {
       $page = $request->input('page', 1);
       $perPage = $request->input('pageSize', 25);
-      $sortField = $request->input('sortField', 'name');
-      $sortDirection = $request->input('sortDirection', 'asc');
-      $search = $request->input('search', null);  
+      $search = $request->input('search', null);
+      $sortField = $request->input('sortField', 'name'); // Single sorting field
+      $sortDirection = $request->input('sortDirection', 'asc'); // Single sorting direction
 
       $query = Company::query()->bindLatestStatus();
 
+      // Apply search filter if provided
       if ($search) {
         $query->where('companies.name', 'like', "%{$search}%")
           ->orWhere('companies.company_code', 'like', "%{$search}%");
       }
 
-      $companies = $query->orderBy($sortField, $sortDirection)
-        ->paginate($perPage, ['*'], 'page', $page);
+      // Apply single sorting condition
+      $query->orderBy($sortField, $sortDirection);
+
+      // Paginate the results
+      $companies = $query->paginate($perPage, ['*'], 'page', $page);
 
       return response()->json($companies);
     } catch (\Exception $e) {
@@ -116,6 +120,6 @@ class CompanyController
   protected function generateCompanyCode()
   {
     $code = Str::upper(Str::random(11));
-    return response()->json(['code' => $code]);
+    return $code;
   }
 }
