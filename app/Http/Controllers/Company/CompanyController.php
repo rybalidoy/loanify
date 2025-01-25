@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Throwable;
 
 class CompanyController
@@ -28,7 +29,7 @@ class CompanyController
       $companies = $query->orderBy($sortField, $sortDirection)
         ->paginate($perPage, ['*'], 'page', $page);
 
-      return $companies;
+      return response()->json($companies);
     } catch (\Exception $e) {
       return response()->json(['message' => $e->getMessage()], 500);
     }
@@ -49,7 +50,7 @@ class CompanyController
       $validatedData = $request->validated();
       $company->capital = $validatedData['capital'] ?? 0;
       $company->name = $validatedData['name'];
-      $company->company_code = $validatedData['company_code'];
+      $company->company_code = $this->generateCompanyCode();
       $company->save();
       $company->setStatus('active', 'created');
       return response()->json(['message' => 'Company created successfully', 'company' => $company], 201);
@@ -112,10 +113,9 @@ class CompanyController
     }
   }
 
-  // public function generateCompanyCode(Request $request)
-  // {
-  //   try {
-  //     $companyService = new CompanyService();
-  //   }
-  // }
+  protected function generateCompanyCode()
+  {
+    $code = Str::upper(Str::random(11));
+    return response()->json(['code' => $code]);
+  }
 }

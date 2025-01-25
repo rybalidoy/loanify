@@ -70,6 +70,7 @@ const Companies = () => {
   };
 
   const handleFetchCompanies = async ({ page, pageSize }, searchValue, sortModel) => {
+    console.log(page, pageSize, searchValue, sortModel);
     const { field, sort } = sortModel[0];
     const params = {
       page: page + 1,
@@ -91,10 +92,12 @@ const Companies = () => {
 
   const handlePaginationModelChange = (newPaginationModel) => {
     setPaginationModel(newPaginationModel);
+    handleFetchCompanies(newPaginationModel, search, sortModel); // Fetch companies on pagination change
   };
 
   const handleSortModelChange = (newSortModel) => {
     setSortModel(newSortModel);
+    handleFetchCompanies(paginationModel, search, newSortModel); // Fetch companies on sort change
   };
 
   const handleEdit = async (row) => {
